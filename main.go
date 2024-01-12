@@ -16,13 +16,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	number_of_users, number_of_users_errors := host_client.GetEnviornmentVariableUInt64(common.ENV_HOLISTIC_HOST_NUMBER_OF_USERS())
+	number_of_users_value, number_of_users_errors := host_client.GetEnviornmentVariableValue(common.ENV_HOLISTIC_HOST_NUMBER_OF_USERS())
 	if number_of_users_errors != nil {
 		errors = append(errors, number_of_users_errors...)
 	}
 
 	if len(errors) > 0 {
 		fmt.Println(fmt.Errorf("%s", errors))
+		os.Exit(1)
+	}
+
+	number_of_users, number_of_users_uint64_errors := number_of_users_value.GetUInt64Value()
+	if number_of_users_uint64_errors != nil {
+		fmt.Println(fmt.Errorf("%s", number_of_users_uint64_errors))
 		os.Exit(1)
 	}
 
