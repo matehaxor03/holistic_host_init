@@ -21,6 +21,11 @@ func main() {
 		errors = append(errors, number_of_users_errors...)
 	}
 
+	users_offset_value, users_offset_value_errors := host_client.GetEnviornmentVariableValue(common.ENV_HOLISTIC_HOST_USERS_USERID_OFFSET())
+	if users_offset_value_errors != nil {
+		errors = append(errors, users_offset_value_errors...)
+	}
+
 	if len(errors) > 0 {
 		fmt.Println(fmt.Errorf("%s", errors))
 		os.Exit(1)
@@ -32,7 +37,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	host_installer,  host_installer_errors := host_installer.NewHostInstaller(common.GetUsersDirectory(), number_of_users)
+	userid_offset, userid_offset_uint64_errors := users_offset_value.GetUInt64Value()
+	if userid_offset_uint64_errors != nil {
+		fmt.Println(fmt.Errorf("%s", userid_offset_uint64_errors))
+		os.Exit(1)
+	}
+
+	host_installer,  host_installer_errors := host_installer.NewHostInstaller(common.GetUsersDirectory(), number_of_users, userid_offset)
 	if host_installer_errors != nil {
 		fmt.Println(fmt.Errorf("%s", host_installer_errors))
 		os.Exit(1)
