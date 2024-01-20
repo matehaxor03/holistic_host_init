@@ -65,14 +65,10 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			}
 
 			if !user_directory.Exists() {
-				fmt.Println(fmt.Sprintf("directory does not exist: " + user_directory.GetPathAsString()))
-
 				user_directory_create_errors := user_directory.Create()
 				if user_directory_create_errors != nil {
 					return user_directory_create_errors
 				}
-			} else {
-				fmt.Println(fmt.Sprintf("directory already exists: " + user_directory.GetPathAsString()))
 			}
 		}
 

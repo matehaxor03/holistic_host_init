@@ -6,6 +6,7 @@ import (
 	host_client "github.com/matehaxor03/holistic_host_client/host_client"
 	host_installer "github.com/matehaxor03/holistic_host_init/host_installer"
 	common "github.com/matehaxor03/holistic_common/common"
+	"time"
 )
 
 func main() {
@@ -28,7 +29,9 @@ func main() {
 			fmt.Println(fmt.Errorf("%s", ramdisk_create_errors))
 			os.Exit(1)
 		}
-	} 
+		time.Sleep(30 * time.Second)
+	}
+	
 	
 	number_of_users_value, number_of_users_errors := host_client.GetEnviornmentVariableValue(common.ENV_HOLISTIC_HOST_NUMBER_OF_USERS())
 	if number_of_users_errors != nil {
