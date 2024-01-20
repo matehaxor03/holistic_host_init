@@ -16,6 +16,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	ramdisk, ramdisk_errors := host_client.Ramdisk(common.GetBaseDiskName(), uint64(2048*1000))
+	if ramdisk_errors != nil {
+		fmt.Println(fmt.Errorf("%s", ramdisk_errors))
+		os.Exit(1)
+	}
+
+	if !ramdisk.Exists() {
+		ramdisk_create_errors := ramdisk.Create()
+		if ramdisk_create_errors != nil {
+			fmt.Println(fmt.Errorf("%s", ramdisk_create_errors))
+			os.Exit(1)
+		}
+	} 
+	
 	number_of_users_value, number_of_users_errors := host_client.GetEnviornmentVariableValue(common.ENV_HOLISTIC_HOST_NUMBER_OF_USERS())
 	if number_of_users_errors != nil {
 		errors = append(errors, number_of_users_errors...)
