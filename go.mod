@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/matehaxor03/holistic_common v0.0.71
-	github.com/matehaxor03/holistic_host_client v0.0.23
+	github.com/matehaxor03/holistic_host_client v0.0.24
 	github.com/matehaxor03/holistic_validator v0.0.8
 )
 

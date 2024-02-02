@@ -31,7 +31,12 @@ func main() {
 		}
 		time.Sleep(30 * time.Second)
 	}
-	
+
+	enable_filesystem_permissions_errors := ramdisk.EnableOwnership()
+	if enable_filesystem_permissions_errors != nil {
+		fmt.Println(fmt.Errorf("%s", enable_filesystem_permissions_errors))
+		os.Exit(1)
+	}
 	
 	number_of_users_value, number_of_users_errors := host_client.GetEnviornmentVariableValue(common.ENV_HOLISTIC_HOST_NUMBER_OF_USERS())
 	if number_of_users_errors != nil {
