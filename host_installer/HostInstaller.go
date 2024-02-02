@@ -70,6 +70,64 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 					return user_directory_create_errors
 				}
 			}
+
+			host_user, host_user_errors := host_client.HostUser(current_username) 
+
+			if host_user_errors != nil {
+				return host_user_errors
+			}
+
+			exists, exists_error := host_user.Exists()
+			if exists_error != nil {
+				return exists_error
+			}
+
+			if !*exists {
+				create_errors := host_user.Create()
+				if create_errors != nil {
+					return create_errors
+				}
+			}
+
+			set_unique_id_errors := host_user.SetUniqueId(i)
+			if set_unique_id_errors != nil {
+				return set_unique_id_errors
+			}
+
+			group, group_errors := host_client.Group(current_username) 
+
+			if group_errors != nil {
+				return group_errors
+			}
+
+			group_exists, group_exists_errors := group.Exists()
+			if group_exists_errors != nil {
+				return group_exists_errors
+			}
+
+			if !*group_exists {
+				group_create_errors := group.Create()
+				if group_create_errors != nil {
+					return group_create_errors
+				}
+			}
+
+			set_group_unique_id_errors := group.SetUniqueId(i)
+			if set_group_unique_id_errors != nil {
+				return set_group_unique_id_errors
+			}
+
+			create_home_directory_errors := host_user.CreateHomeDirectoryAbsoluteDirectory(*user_directory)
+
+			if create_home_directory_errors != nil {
+				return create_home_directory_errors
+			}
+
+			set_user_directory_errors := user_directory.SetOwnerRecursive(*host_user, *group)
+			
+			if set_user_directory_errors != nil {
+				return set_user_directory_errors
+			}
 		}
 
 		return nil
