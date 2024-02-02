@@ -117,6 +117,16 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 				return set_group_unique_id_errors
 			}
 
+			add_user_to_group_errors := group.AddUser(*host_user)
+			if add_user_to_group_errors != nil {
+				return add_user_to_group_errors
+			}
+
+			set_user_primary_group_id_errors := host_user.SetPrimaryGroupId(i)
+			if set_user_primary_group_id_errors != nil {
+				return set_user_primary_group_id_errors
+			}
+
 			create_home_directory_errors := host_user.CreateHomeDirectoryAbsoluteDirectory(*user_directory)
 
 			if create_home_directory_errors != nil {
