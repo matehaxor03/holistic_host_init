@@ -35,7 +35,25 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 		return this_userid_offset
 	}
 
-	create_user := func(username string, absolute_home_directory_path []string, primary_user_id uint64, primary_group_id uint64) []error {
+	create_user := func(username string, primary_user_id uint64, primary_group_id uint64, folder_group_username string) []error {
+		var absolute_home_directory_path []string
+		
+		users_directory_parts := getUsersDirectory()
+		users_directory, users_directory_errors := host_client.AbsoluteDirectory(users_directory_parts)
+		if users_directory_errors != nil {
+			return users_directory_errors
+		}
+
+		if !users_directory.Exists() {
+			directory_create_errors := users_directory.Create()
+			if directory_create_errors != nil {
+				return directory_create_errors
+			}
+		}
+
+		absolute_home_directory_path = append(absolute_home_directory_path, users_directory.GetPath()...)
+		absolute_home_directory_path = append(absolute_home_directory_path, username)
+		
 		user_directory, user_directory_errors := host_client.AbsoluteDirectory(absolute_home_directory_path)
 		if user_directory_errors != nil {
 			return user_directory_errors
@@ -110,7 +128,14 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			return create_home_directory_errors
 		}
 
-		set_user_directory_errors := user_directory.SetOwnerRecursive(*host_user, *group)
+
+		folder_group, folder_group_username_errors := host_client.Group(folder_group_username) 
+		
+		if folder_group_username_errors != nil {
+			return folder_group_username_errors
+		}
+
+		set_user_directory_errors := user_directory.SetOwnerRecursive(*host_user, *folder_group)
 		
 		if set_user_directory_errors != nil {
 			return set_user_directory_errors
@@ -120,32 +145,30 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 	}
 	
 	install := func() ([]error) {
-		users_directory_parts := getUsersDirectory()
-		users_directory, users_directory_errors := host_client.AbsoluteDirectory(users_directory_parts)
-		if users_directory_errors != nil {
-			return users_directory_errors
-		}
-
-		if !users_directory.Exists() {
-			directory_create_errors := users_directory.Create()
-			if directory_create_errors != nil {
-				return directory_create_errors
-			}
-		}
-
 		temp_this_number_of_users := getNumberOfUsers()
 		temp_this_userid_offset := getUserIdOffset()
 
-		max_user_id := temp_this_userid_offset + temp_this_number_of_users
+		end_of_branch_user_ids := temp_this_userid_offset + temp_this_number_of_users
+		end_of_users_id := end_of_branch_user_ids + temp_this_number_of_users
+		current_unique_id := temp_this_userid_offset
 
-		for i := temp_this_userid_offset ; i < max_user_id; i++ {
-			current_username := "holisticxyz_b" + strconv.FormatUint(i, 10) + "_"
-			var current_username_directory []string
-			current_username_directory = append(current_username_directory, users_directory.GetPath()...)
-			current_username_directory = append(current_username_directory, current_username)
-			create_user_errors := create_user(current_username, current_username_directory, i, i)
+
+		holistic_processor_username := "holisticxyz_holistic_processor_"
+		{
+			holistic_processor_unique_id := end_of_users_id + 10
+			create_user_errors := create_user(holistic_processor_username, holistic_processor_unique_id, holistic_processor_unique_id, holistic_processor_username)
 			if create_user_errors != nil {
 				return create_user_errors
+			}
+		}
+
+		{
+			for ; current_unique_id < end_of_branch_user_ids; current_unique_id++ {
+				current_username := "holisticxyz_b" + strconv.FormatUint(current_unique_id, 10) + "_"
+				create_user_errors := create_user(current_username, current_unique_id, current_unique_id, holistic_processor_username)
+				if create_user_errors != nil {
+					return create_user_errors
+				}
 			}
 		}
 
