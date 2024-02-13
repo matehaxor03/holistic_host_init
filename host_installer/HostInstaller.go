@@ -130,7 +130,7 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 
 
 		folder_group, folder_group_username_errors := host_client.Group(folder_group_username) 
-		
+
 		if folder_group_username_errors != nil {
 			return folder_group_username_errors
 		}
@@ -152,11 +152,37 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 		end_of_users_id := end_of_branch_user_ids + temp_this_number_of_users
 		current_unique_id := temp_this_userid_offset
 
-
 		holistic_processor_username := "holisticxyz_holistic_processor_"
 		{
 			holistic_processor_unique_id := end_of_users_id + 10
 			create_user_errors := create_user(holistic_processor_username, holistic_processor_unique_id, holistic_processor_unique_id, holistic_processor_username)
+			if create_user_errors != nil {
+				return create_user_errors
+			}
+		}
+
+		holistic_webserver_username := "holisticxyz_holistic_webserver_"
+		{
+			holistic_webserver_unique_id := end_of_users_id + 11
+			create_user_errors := create_user(holistic_webserver_username, holistic_webserver_unique_id, holistic_webserver_unique_id, holistic_webserver_username)
+			if create_user_errors != nil {
+				return create_user_errors
+			}
+		}
+
+		holistic_queue_username := "holisticxyz_holistic_queue_"
+		{
+			holistic_queue_unique_id := end_of_users_id + 12
+			create_user_errors := create_user(holistic_queue_username, holistic_queue_unique_id, holistic_queue_unique_id, holistic_queue_username)
+			if create_user_errors != nil {
+				return create_user_errors
+			}
+		}
+
+		holistic_username := "holisticxyz_holistic_"
+		{
+			holistic_unique_id := end_of_users_id + 13
+			create_user_errors := create_user(holistic_username, holistic_unique_id, holistic_unique_id, holistic_username)
 			if create_user_errors != nil {
 				return create_user_errors
 			}
