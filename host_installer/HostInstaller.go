@@ -37,6 +37,7 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 
 	create_user := func(username string, primary_user_id uint64, primary_group_id uint64, folder_group_username string) []error {
 		var absolute_home_directory_path []string
+		var absolute_ssh_directory_path []string
 		
 		users_directory_parts := getUsersDirectory()
 		users_directory, users_directory_errors := host_client.AbsoluteDirectory(users_directory_parts)
@@ -54,6 +55,9 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 		absolute_home_directory_path = append(absolute_home_directory_path, users_directory.GetPath()...)
 		absolute_home_directory_path = append(absolute_home_directory_path, username)
 		
+		absolute_ssh_directory_path = append(absolute_ssh_directory_path, absolute_home_directory_path...)
+		absolute_ssh_directory_path = append(absolute_ssh_directory_path, ".ssh")
+		
 		user_directory, user_directory_errors := host_client.AbsoluteDirectory(absolute_home_directory_path)
 		if user_directory_errors != nil {
 			return user_directory_errors
@@ -63,6 +67,18 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			user_directory_create_errors := user_directory.Create()
 			if user_directory_create_errors != nil {
 				return user_directory_create_errors
+			}
+		}
+
+		ssh_directory, ssh_directory_errors := host_client.AbsoluteDirectory(absolute_ssh_directory_path)
+		if ssh_directory_errors != nil {
+			return ssh_directory_errors
+		}
+
+		if !ssh_directory.Exists() {
+			ssh_directory_create_errors := ssh_directory.Create()
+			if ssh_directory_create_errors != nil {
+				return ssh_directory_create_errors
 			}
 		}
 
