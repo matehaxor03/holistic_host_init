@@ -157,6 +157,11 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			return nil, set_user_directory_errors
 		}
 
+		enable_bash_errors := host_user.EnableBinBash()
+		if enable_bash_errors != nil {
+			return nil, enable_bash_errors
+		}
+
 		return host_user, nil
 	}
 	
