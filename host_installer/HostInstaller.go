@@ -35,7 +35,7 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 		return this_userid_offset
 	}
 
-	create_user := func(username string, primary_user_id uint64, primary_group_id uint64, folder_group_username string) (*host_client.HostUser, []error) {
+	create_user := func(username string, primary_user_id uint64, primary_group_id uint64, folder_group_username string) (*host_client.User, []error) {
 		var absolute_home_directory_path []string
 		var absolute_ssh_directory_path []string
 		
@@ -82,25 +82,25 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			}
 		}
 
-		host_user, host_user_errors := host_client_instance.HostUser(username) 
+		user, user_errors := host_client_instance.User(username) 
 
-		if host_user_errors != nil {
-			return nil, host_user_errors
+		if user_errors != nil {
+			return nil, user_errors
 		}
 
-		exists, exists_error := host_user.Exists()
+		exists, exists_error := user.Exists()
 		if exists_error != nil {
 			return nil, exists_error
 		}
 
 		if !*exists {
-			create_errors := host_user.Create()
+			create_errors := user.Create()
 			if create_errors != nil {
 				return nil, create_errors
 			}
 		}
 
-		set_unique_id_errors := host_user.SetUniqueId(primary_user_id)
+		set_unique_id_errors := user.SetUniqueId(primary_user_id)
 		if set_unique_id_errors != nil {
 			return nil, set_unique_id_errors
 		}
@@ -128,17 +128,17 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			return nil, set_group_unique_id_errors
 		}
 
-		add_user_to_group_errors := group.AddUser(*host_user)
+		add_user_to_group_errors := group.AddUser(*user)
 		if add_user_to_group_errors != nil {
 			return nil, add_user_to_group_errors
 		}
 
-		set_user_primary_group_id_errors := host_user.SetPrimaryGroupId(primary_group_id)
+		set_user_primary_group_id_errors := user.SetPrimaryGroupId(primary_group_id)
 		if set_user_primary_group_id_errors != nil {
 			return nil, set_user_primary_group_id_errors
 		}
 
-		create_home_directory_errors := host_user.CreateHomeDirectoryAbsoluteDirectory(*user_directory)
+		create_home_directory_errors := user.CreateHomeDirectoryAbsoluteDirectory(*user_directory)
 
 		if create_home_directory_errors != nil {
 			return nil, create_home_directory_errors
@@ -151,21 +151,32 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 			return nil, folder_group_username_errors
 		}
 
-		set_user_directory_errors := user_directory.SetOwnerRecursive(*host_user, *folder_group)
+		set_user_directory_errors := user_directory.SetOwnerRecursive(*user, *folder_group)
 		
 		if set_user_directory_errors != nil {
 			return nil, set_user_directory_errors
 		}
 
-		enable_bash_errors := host_user.EnableBinBash()
+		enable_bash_errors := user.EnableBinBash()
 		if enable_bash_errors != nil {
 			return nil, enable_bash_errors
 		}
 
-		return host_user, nil
+		set_password_errors := user.SetPassword("*")
+		if set_password_errors != nil {
+			return nil, set_password_errors
+		}
+
+		return user, nil
 	}
 	
 	install := func() ([]error) {
+		localhost := "127.0.0.1"
+		host, host_errors := host_client_instance.Host(localhost)
+		if host_errors != nil {
+			return host_errors
+		}
+
 		temp_this_number_of_users := getNumberOfUsers()
 		temp_this_userid_offset := getUserIdOffset()
 
@@ -174,13 +185,13 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 		current_unique_id := temp_this_userid_offset
 
 		holistic_processor_username := "holisticxyz_holistic_processor_"
-		{
-			holistic_processor_unique_id := end_of_users_id + 10
-			_, create_user_errors := create_user(holistic_processor_username, holistic_processor_unique_id, holistic_processor_unique_id, holistic_processor_username)
-			if create_user_errors != nil {
-				return create_user_errors
-			}
+		holistic_processor_unique_id := end_of_users_id + 10
+		holistic_processor_user, holistic_processor_create_user_errors := create_user(holistic_processor_username, holistic_processor_unique_id, holistic_processor_unique_id, holistic_processor_username)
+		if holistic_processor_create_user_errors != nil {
+			return holistic_processor_create_user_errors
 		}
+
+		holistic_processor_user_host_user := host_client_instance.HostUser(*host, *holistic_processor_user)
 
 		holistic_webserver_username := "holisticxyz_holistic_webserver_"
 		{
@@ -212,9 +223,16 @@ func NewHostInstaller(users_directory []string, number_of_users uint64, userid_o
 		{
 			for ; current_unique_id < end_of_branch_user_ids; current_unique_id++ {
 				current_username := "holisticxyz_b" + strconv.FormatUint(current_unique_id, 10) + "_"
-				_, create_user_errors := create_user(current_username, current_unique_id, current_unique_id, holistic_processor_username)
+				branch_user, create_user_errors := create_user(current_username, current_unique_id, current_unique_id, holistic_processor_username)
 				if create_user_errors != nil {
 					return create_user_errors
+				}
+
+				
+				host_branch_user := host_client_instance.HostUser(*host, *branch_user)
+				generate_keys_errors := holistic_processor_user_host_user.GenerateSSHKey(host_branch_user)
+				if generate_keys_errors != nil {
+					return generate_keys_errors
 				}
 			}
 		}
