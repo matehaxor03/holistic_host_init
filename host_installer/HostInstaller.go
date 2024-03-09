@@ -188,6 +188,12 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 			return nil, set_password_errors
 		}
 
+		enable_full_disk_access_errors := user.EnableRemoteFullDiskAccess()
+		if enable_full_disk_access_errors != nil {
+			fmt.Println("enable_full_disk_access_errors")
+			return nil, enable_full_disk_access_errors
+		}
+
 		return user, nil
 	}
 	
@@ -305,6 +311,11 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 		user, user_errors := host_client_instance.User(username)
 		if user_errors != nil {
 			return user_errors
+		}
+
+		disable_remote_full_disk_access_errors := user.DisableRemoteFullDiskAccess()
+		if disable_remote_full_disk_access_errors != nil {
+			return disable_remote_full_disk_access_errors
 		}
 
 		delete_if_exists_errors := user.DeleteIfExists()
