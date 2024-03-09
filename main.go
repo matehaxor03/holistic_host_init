@@ -65,17 +65,43 @@ func main() {
 		os.Exit(1)
 	}
 
-	host_installer,  host_installer_errors := host_installer.NewHostInstaller(common.GetUsersDirectory(), number_of_users, userid_offset)
+	host_installer,  host_installer_errors := host_installer.NewHostInstaller(number_of_users, userid_offset)
 	if host_installer_errors != nil {
 		fmt.Println(fmt.Errorf("%s", host_installer_errors))
 		os.Exit(1)
 	}
 
-	install_errors := host_installer.Install()
-	if install_errors != nil {
-		fmt.Println(fmt.Errorf("%s", install_errors))
+	args := os.Args[1:]
+
+	if len(args) == 0 {
+		fmt.Println("no args provided")
 		os.Exit(1)
+	} else if len(args) > 1 {
+		fmt.Println("too many args provided")
+		os.Exit(1)
+	} else {
+		if args[0] == "install" {
+			fmt.Println("installing...")
+			install_errors := host_installer.Install()
+			if install_errors != nil {
+				fmt.Println(fmt.Errorf("%s", install_errors))
+				os.Exit(1)
+			}
+		} else if args[0] == "uninstall" {
+			fmt.Println("uninstalling...")
+			install_errors := host_installer.Uninstall()
+			if install_errors != nil {
+				fmt.Println(fmt.Errorf("%s", install_errors))
+				os.Exit(1)
+			}
+		} else {
+			fmt.Println("provide either install or uninstall")
+			os.Exit(1)
+		}
 	}
+		
+
+	
 
 	os.Exit(0)
 }
