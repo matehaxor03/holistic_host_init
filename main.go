@@ -6,7 +6,6 @@ import (
 	host_client "github.com/matehaxor03/holistic_host_client/host_client"
 	host_installer "github.com/matehaxor03/holistic_host_init/host_installer"
 	common "github.com/matehaxor03/holistic_common/common"
-	"time"
 )
 
 func main() {
@@ -14,27 +13,6 @@ func main() {
 	host_client, host_client_errors := host_client.NewHostClient()
 	if host_client_errors != nil {
 		fmt.Println(fmt.Errorf("%s", host_client_errors))
-		os.Exit(1)
-	}
-
-	ramdisk, ramdisk_errors := host_client.Ramdisk(common.GetBaseDiskName(), uint64(2048*1000))
-	if ramdisk_errors != nil {
-		fmt.Println(fmt.Errorf("%s", ramdisk_errors))
-		os.Exit(1)
-	}
-
-	if !ramdisk.Exists() {
-		ramdisk_create_errors := ramdisk.Create()
-		if ramdisk_create_errors != nil {
-			fmt.Println(fmt.Errorf("%s", ramdisk_create_errors))
-			os.Exit(1)
-		}
-		time.Sleep(30 * time.Second)
-	}
-
-	enable_filesystem_permissions_errors := ramdisk.EnableOwnership()
-	if enable_filesystem_permissions_errors != nil {
-		fmt.Println(fmt.Errorf("%s", enable_filesystem_permissions_errors))
 		os.Exit(1)
 	}
 	

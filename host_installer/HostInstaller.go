@@ -301,6 +301,15 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 			}
 		}
 
+		holistic_migration_username := "holisticxyz_holistic_migration_"
+		{
+			holistic_unique_id := end_of_users_id + 14
+			_, create_user_errors := create_user(holistic_migration_username, holistic_unique_id, holistic_unique_id, holistic_migration_username)
+			if create_user_errors != nil {
+				return create_user_errors
+			}
+		}
+
 		{
 			for ; current_unique_id < end_of_branch_user_ids; current_unique_id++ {
 				fmt.Println(current_unique_id)
@@ -395,6 +404,14 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 		holistic_username := "holisticxyz_holistic_"
 		{
 			delete_user_errors := delete_user(holistic_username)
+			if delete_user_errors != nil {
+				return delete_user_errors
+			}
+		}
+
+		holistic_migration_username := "holisticxyz_holistic_migration_"
+		{
+			delete_user_errors := delete_user(holistic_migration_username)
 			if delete_user_errors != nil {
 				return delete_user_errors
 			}
