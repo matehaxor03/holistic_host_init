@@ -6,6 +6,7 @@ import (
 	validate "github.com/matehaxor03/holistic_validator/validate"
 	host_client "github.com/matehaxor03/holistic_host_client/host_client"
 	common "github.com/matehaxor03/holistic_common/common"
+	"time"
 )
 
 type HostInstaller struct {
@@ -52,12 +53,9 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 			return nil, user_directory_errors
 		}
 
-		if !user_directory.Exists() {
-			user_directory_create_errors := user_directory.Create()
-			if user_directory_create_errors != nil {
-				fmt.Println("user_directory_create_errors")
-				return nil, user_directory_create_errors
-			}
+		user_directory_create_errors := user_directory.CreateIfDoesNotExist()
+		if user_directory_create_errors != nil {
+			return nil, user_directory_create_errors
 		}
 		
 		ssh_directory, ssh_directory_errors := host_client_instance.AbsoluteDirectory(absolute_ssh_directory_path)
@@ -66,12 +64,10 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 			return nil, ssh_directory_errors
 		}
 
-		if !ssh_directory.Exists() {
-			ssh_directory_create_errors := ssh_directory.Create()
-			if ssh_directory_create_errors != nil {
-				fmt.Println("ssh_directory_create_errors")
-				return nil, ssh_directory_create_errors
-			}
+		ssh_directory_create_errors := ssh_directory.CreateIfDoesNotExist()
+		if ssh_directory_create_errors != nil {
+			fmt.Println("ssh_directory_create_errors")
+			return nil, ssh_directory_create_errors
 		}
 
 		io_directory, io_directory_errors := host_client_instance.AbsoluteDirectory(absolute_io_directoy_path)
@@ -80,12 +76,9 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 			return nil, io_directory_errors
 		}
 
-		if !io_directory.Exists() {
-			io_directory_create_errors := io_directory.Create()
-			if io_directory_create_errors != nil {
-				fmt.Println("io_directory_create_errors")
-				return nil, io_directory_create_errors
-			}
+		io_directory_create_errors := io_directory.CreateIfDoesNotExist()
+		if io_directory_create_errors != nil {
+			return nil, io_directory_create_errors
 		}
 
 		user, user_errors := host_client_instance.User(username) 
@@ -200,6 +193,28 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 	install := func() ([]error) {
 		var errors []error
 		localhost := "127.0.0.1"
+
+		ramdisk, ramdisk_errors := host_client_instance.Ramdisk(common.GetBaseDiskName(), uint64(2048*1000))
+		if ramdisk_errors != nil {
+			fmt.Println("ramdisk_errors")
+			return ramdisk_errors
+		}
+
+		if !ramdisk.Exists() {
+			ramdisk_create_errors := ramdisk.Create()
+			if ramdisk_create_errors != nil {
+				fmt.Println("ramdisk_create_errors")
+				return ramdisk_create_errors
+			}
+			time.Sleep(30 * time.Second)
+		}
+
+		enable_filesystem_permissions_errors := ramdisk.EnableOwnership()
+		if enable_filesystem_permissions_errors != nil {
+			fmt.Println("enable_filesystem_permissions_errors")
+			return enable_filesystem_permissions_errors
+		}
+
 		host, host_errors := host_client_instance.Host(localhost)
 		if host_errors != nil {
 			return host_errors
