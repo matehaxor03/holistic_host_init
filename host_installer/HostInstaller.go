@@ -265,46 +265,49 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 		end_of_users_id := end_of_branch_user_ids + temp_this_number_of_users
 		current_unique_id := temp_this_userid_offset
 
-		holistic_processor_username := "holisticxyz_holistic_processor_"
 		holistic_processor_unique_id := end_of_users_id + 10
-		holistic_processor_user, holistic_processor_create_user_errors := create_user(holistic_processor_username, holistic_processor_unique_id, holistic_processor_unique_id, holistic_processor_username)
+		holistic_processor_user, holistic_processor_create_user_errors := create_user("holisticxyz_holistic_processor_", holistic_processor_unique_id, holistic_processor_unique_id, "holisticxyz_holistic_processor_")
 		if holistic_processor_create_user_errors != nil {
 			return holistic_processor_create_user_errors
 		}
 
 		holistic_processor_user_host_user := host_client_instance.HostUser(*host, *holistic_processor_user)
 
-		holistic_webserver_username := "holisticxyz_holistic_webserver_"
 		{
 			holistic_webserver_unique_id := end_of_users_id + 11
-			_, create_user_errors := create_user(holistic_webserver_username, holistic_webserver_unique_id, holistic_webserver_unique_id, holistic_webserver_username)
+			_, create_user_errors := create_user("holisticxyz_holistic_webserver_", holistic_webserver_unique_id, holistic_webserver_unique_id, "holisticxyz_holistic_webserver_")
 			if create_user_errors != nil {
 				return create_user_errors
 			}
 		}
 
-		holistic_queue_username := "holisticxyz_holistic_queue_"
 		{
 			holistic_queue_unique_id := end_of_users_id + 12
-			_, create_user_errors := create_user(holistic_queue_username, holistic_queue_unique_id, holistic_queue_unique_id, holistic_queue_username)
+			_, create_user_errors := create_user("holisticxyz_holistic_queue_", holistic_queue_unique_id, holistic_queue_unique_id, "holisticxyz_holistic_queue_")
 			if create_user_errors != nil {
 				return create_user_errors
 			}
 		}
 
-		holistic_username := "holisticxyz_holistic_"
 		{
 			holistic_unique_id := end_of_users_id + 13
-			_, create_user_errors := create_user(holistic_username, holistic_unique_id, holistic_unique_id, holistic_username)
+			_, create_user_errors := create_user("holisticxyz_holistic_", holistic_unique_id, holistic_unique_id, "holisticxyz_holistic_")
 			if create_user_errors != nil {
 				return create_user_errors
 			}
 		}
 
-		holistic_migration_username := "holisticxyz_holistic_migration_"
 		{
 			holistic_unique_id := end_of_users_id + 14
-			_, create_user_errors := create_user(holistic_migration_username, holistic_unique_id, holistic_unique_id, holistic_migration_username)
+			_, create_user_errors := create_user("holisticxyz_holistic_migration_", holistic_unique_id, holistic_unique_id, "holisticxyz_holistic_migration_")
+			if create_user_errors != nil {
+				return create_user_errors
+			}
+		}
+
+		{
+			holistic_unique_id := end_of_users_id + 15
+			_, create_user_errors := create_user("holisticxyz_holistic_root_", holistic_unique_id, holistic_unique_id, "holisticxyz_holistic_root_")
 			if create_user_errors != nil {
 				return create_user_errors
 			}
@@ -314,7 +317,7 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 			for ; current_unique_id < end_of_branch_user_ids; current_unique_id++ {
 				fmt.Println(current_unique_id)
 				current_username := "holisticxyz_b" + strconv.FormatUint(current_unique_id, 10) + "_"
-				branch_user, create_user_errors := create_user(current_username, current_unique_id, current_unique_id, holistic_processor_username)
+				branch_user, create_user_errors := create_user(current_username, current_unique_id, current_unique_id, current_username)
 				if create_user_errors != nil {
 					return create_user_errors
 				}
@@ -379,39 +382,44 @@ func NewHostInstaller(number_of_users uint64, userid_offset uint64) (*HostInstal
 		end_of_branch_user_ids := temp_this_userid_offset + temp_this_number_of_users
 		current_unique_id := temp_this_userid_offset
 
-		holistic_processor_username := "holisticxyz_holistic_processor_"
-		holistic_processor_delete_user_errors := delete_user(holistic_processor_username)
-		if holistic_processor_delete_user_errors != nil {
-			return holistic_processor_delete_user_errors
-		}
-
-		holistic_webserver_username := "holisticxyz_holistic_webserver_"
 		{
-			delete_user_errors := delete_user(holistic_webserver_username)
+			holistic_processor_delete_user_errors := delete_user("holisticxyz_holistic_processor_")
+			if holistic_processor_delete_user_errors != nil {
+				return holistic_processor_delete_user_errors
+			}
+		}
+		
+
+		{
+			delete_user_errors := delete_user("holisticxyz_holistic_webserver_")
 			if delete_user_errors != nil {
 				return delete_user_errors
 			}
 		}
 
-		holistic_queue_username := "holisticxyz_holistic_queue_"
 		{
-			delete_user_errors := delete_user(holistic_queue_username)
+			delete_user_errors := delete_user("holisticxyz_holistic_queue_")
 			if delete_user_errors != nil {
 				return delete_user_errors
 			}
 		}
 
-		holistic_username := "holisticxyz_holistic_"
 		{
-			delete_user_errors := delete_user(holistic_username)
+			delete_user_errors := delete_user("holisticxyz_holistic_")
 			if delete_user_errors != nil {
 				return delete_user_errors
 			}
 		}
 
-		holistic_migration_username := "holisticxyz_holistic_migration_"
 		{
-			delete_user_errors := delete_user(holistic_migration_username)
+			delete_user_errors := delete_user("holisticxyz_holistic_migration_")
+			if delete_user_errors != nil {
+				return delete_user_errors
+			}
+		}
+
+		{
+			delete_user_errors := delete_user("holisticxyz_holistic_root_")
 			if delete_user_errors != nil {
 				return delete_user_errors
 			}
